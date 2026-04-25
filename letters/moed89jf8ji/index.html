@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>致1的锦书</title>
+    <style>
+        :root { --env: #c5a367; --paper: #fffef0; }
+        body { background: #1a1612; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: serif; overflow: hidden; }
+        
+        #auth { position: fixed; inset: 0; background: #1a1612; z-index: 100; display: flex; align-items: center; justify-content: center; transition: 0.5s; }
+        .auth-card { background: #26201a; padding: 40px; border-radius: 25px; text-align: center; border: 1px solid #3d352b; width: 80%; max-width: 320px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #444; color: #fff; border-radius: 10px; text-align: center; outline: none; }
+        button { background: #d4b87a; color: #1a1a1a; border: none; padding: 12px 40px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+
+        .scene { width: 300px; height: 200px; perspective: 1000px; display: none; cursor: pointer; position: relative; }
+        .envelope { width: 100%; height: 100%; position: relative; transition: transform 0.8s; transform-style: preserve-3d; }
+        .envelope.flipped { transform: rotateY(180deg); }
+        .side { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .back { background: var(--env); display: flex; align-items: center; justify-content: center; }
+        .back::after { content: "✉️"; font-size: 3rem; opacity: 0.2; }
+        .front { background: #d4b87a; transform: rotateY(180deg); }
+        .flap { position: absolute; top: 0; width: 0; height: 0; border-left: 150px solid transparent; border-right: 150px solid transparent; border-top: 100px solid #b69456; transform-origin: top; transition: 0.4s 0.3s; z-index: 5; }
+        .paper { position: absolute; bottom: 5px; left: 10px; width: 280px; height: 180px; background: var(--paper); padding: 20px; transition: 0.6s 0.6s; z-index: 2; overflow-y: auto; color: #333; line-height: 1.6; box-sizing: border-box; }
+        .envelope.opened .flap { transform: rotateX(180deg); z-index: 1; }
+        .envelope.opened .paper { transform: translateY(-130px); height: 350px; z-index: 20; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        #hint { color: #d4b87a; position: absolute; bottom: -50px; width: 100%; text-align: center; font-size: 0.8rem; opacity: 0.6; }
+    </style>
+</head>
+<body>
+    <div id="auth">
+        <div class="auth-card">
+            <h3 style="color:#d4b87a; margin-top:0;">🔐 身份核验</h3>
+            <input id="vN" placeholder="收信人名字">
+            <input type="password" id="vP" placeholder="访问密码">
+            <button onclick="check()">开启锦书</button>
+        </div>
+    </div>
+
+    <div class="scene" id="scene">
+        <div class="envelope" id="env" onclick="next()">
+            <div class="side back"></div>
+            <div class="side front">
+                <div class="flap"></div>
+                <div class="paper">
+                    <strong>致 1：</strong><br><br>
+                    方法
+                </div>
+            </div>
+        </div>
+        <div id="hint">点击信封翻转</div>
+    </div>
+
+    <script>
+        let s = 0;
+        async function check() {
+            try {
+                // 自动加载同目录下的 zh.json
+                const res = await fetch('zh.json');
+                const conf = await res.json();
+                if(document.getElementById('vN').value === conf.name && document.getElementById('vP').value === conf.pass) {
+                    document.getElementById('auth').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('auth').style.display = 'none';
+                        document.getElementById('scene').style.display = 'block';
+                    }, 500);
+                } else { alert('校验失败'); }
+            } catch(e) { alert('安全文件丢失'); }
+        }
+
+        function next() {
+            const e = document.getElementById('env');
+            const h = document.getElementById('hint');
+            if(s === 0) { e.classList.add('flipped'); h.innerText = "再次点击拆封"; s = 1; }
+            else if(s === 1) { e.classList.add('opened'); h.innerText = "见字如晤"; s = 2; }
+        }
+    </script>
+</body>
+</html>
